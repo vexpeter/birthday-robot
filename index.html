@@ -234,7 +234,7 @@
           body = `${name} will turn ${ageNext} tomorrow!`;
         } else if (daysUntil === 0) {
           title = `🎉 Happy Birthday to ${name}!`;
-          body = `Today is ${name}'s birthday! They are turning ${ageNext}.`;
+          body = `Today is ${name}'s birthday! He/She is turning ${ageNext}.`;
         }
 
         alertMessages.push(body);
@@ -293,17 +293,17 @@
 
     let timeText = "";
     if (daysUntil === 0) {
-      timeText = "Their birthday is today!";
+      timeText = "His/Her birthday is today!";
     } else {
       let parts = [];
       if (weeks > 0) parts.push(`${weeks} week${weeks === 1 ? "" : "s"}`);
       if (days > 0 || weeks === 0) parts.push(`${days} day${days === 1 ? "" : "s"}`);
-      timeText = `${parts.join(" and ")} until their birthday.`;
+      timeText = `${parts.join(" and ")} until His/Her birthday.`;
     }
 
     result.innerHTML =
       `<strong>${name}</strong> is currently <strong>${ageNow}</strong> years old.<br>` +
-      `They will turn <strong>${ageNext}</strong> on their next birthday.<br>` +
+      `He/She will turn <strong>${ageNext}</strong> on His/Her next birthday.<br>` +
       `🕒 ${timeText}`;
   });
 </script>
