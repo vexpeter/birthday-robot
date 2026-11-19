@@ -310,7 +310,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB66TW4s5t4wad27trMjxJ6ydrteV0HyaY",
@@ -326,6 +326,21 @@
   const app = initializeApp(firebaseConfig);
   const messaging = getMessaging(app);
   const tokenField = document.querySelector("#fcm-token-input");
+
+  onMessage(messaging, async (payload) => {
+    console.log("Foreground message received:", payload);
+    const title = payload.notification?.title || "Remember Me!";
+    const body = payload.notification?.body || "You have a birthday reminder.";
+
+    if (Notification.permission === "granted" && "serviceWorker" in navigator) {
+      const reg = await navigator.serviceWorker.ready;
+      reg.showNotification(title, {
+        body,
+        icon: "icon.png",
+        requireInteraction: true
+      });
+    }
+  });
 
   async function initServiceWorkerAndToken(requestIfNeeded = false) {
     if (!("serviceWorker" in navigator)) return;
