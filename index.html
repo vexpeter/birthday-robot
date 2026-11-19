@@ -33,6 +33,7 @@
             max-width: 400px;
             width: 100%;
             text-align: center;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -82,6 +83,48 @@
             background-color: #0056b3;
         }
 
+        .token-box {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .token-box label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        #fcm-token-input {
+            width: 100%;
+            padding: 8px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background: #f9f9f9;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        #copy-token-btn {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 13px;
+            border: none;
+            border-radius: 6px;
+            background-color: #6c757d;
+            color: white;
+            cursor: pointer;
+        }
+
+        #copy-token-btn:hover {
+            background-color: #545b62;
+        }
+
         .support-link {
             margin-top: 20px;
         }
@@ -100,6 +143,12 @@
         </select>
         <p id="result"></p>
 
+        <div class="token-box">
+            <label for="fcm-token-input">Device FCM Token:</label>
+            <input id="fcm-token-input" type="text" readonly placeholder="Enable notifications to generate token...">
+            <button id="copy-token-btn" type="button">📋 Copy Token</button>
+        </div>
+
         <div class="support-link">
             <a href="mailto:itpeter002@gmail.com" style="color: #007bff; text-decoration: none; font-size: 14px;">Connect support here</a>
         </div>
@@ -117,6 +166,23 @@
   const result = document.querySelector("#result");
   const alertBox = document.querySelector("#birthday-alert");
   const notifyBtn = document.querySelector("#notify-btn");
+  const tokenInput = document.querySelector("#fcm-token-input");
+  const copyTokenBtn = document.querySelector("#copy-token-btn");
+
+  copyTokenBtn.addEventListener("click", async () => {
+    if (!tokenInput.value) return;
+    try {
+      await navigator.clipboard.writeText(tokenInput.value);
+      copyTokenBtn.textContent = "✅ Copied!";
+      setTimeout(() => {
+        copyTokenBtn.textContent = "📋 Copy Token";
+      }, 2000);
+    } catch {
+      tokenInput.select();
+      document.execCommand("copy");
+      copyTokenBtn.textContent = "✅ Selected / Copied!";
+    }
+  });
 
   for (const name of Object.keys(people)) {
     const option = document.createElement("option");
@@ -259,6 +325,7 @@
 
   const app = initializeApp(firebaseConfig);
   const messaging = getMessaging(app);
+  const tokenField = document.querySelector("#fcm-token-input");
 
   async function initServiceWorkerAndToken(requestIfNeeded = false) {
     if (!("serviceWorker" in navigator)) return;
@@ -289,10 +356,16 @@
           vapidKey: VAPID_KEY
         });
         console.log("FCM Token:", token);
+        if (tokenField && token) {
+          tokenField.value = token;
+        }
         return token;
       }
     } catch (err) {
       console.error("Push setup error:", err);
+      if (tokenField) {
+        tokenField.value = `Error: ${err.message || err}`;
+      }
     }
   }
 
