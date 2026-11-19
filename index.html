@@ -106,13 +106,6 @@
     </div>
 
 <script>
-  // Register Service Worker for Mobile PWA support
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log("Service Worker registered successfully!"))
-      .catch(err => console.log("Service Worker registration failed:", err));
-  }
-
   const people = {
     "Apa": "1979-08-26",
     "Anya": "1981-08-23",
@@ -142,19 +135,6 @@
     }
   }
 
-  notifyBtn.addEventListener("click", async () => {
-    if (!("Notification" in window)) return;
-    const permission = await Notification.requestPermission();
-    updateButtonUI();
-
-    if (permission === "granted") {
-      new Notification("Remember Me!", {
-        body: "Notifications are active! You will be alerted 10 days before, 1 day before, and on birthdays."
-      });
-      checkBirthdays();
-    }
-  });
-
   function checkBirthdays() {
     const today = new Date();
     const thisYear = today.getFullYear();
@@ -164,7 +144,7 @@
 
     for (const [name, dateStr] of Object.entries(people)) {
       const [birthYear, birthMonth, birthDay] = dateStr.split("-").map(Number);
-      
+
       let birthdayThisYear = Date.UTC(thisYear, birthMonth - 1, birthDay);
       let targetYear = thisYear;
 
@@ -214,11 +194,6 @@
     }
   }
 
-  window.addEventListener("DOMContentLoaded", () => {
-    updateButtonUI();
-    checkBirthdays();
-  });
-
   menu.addEventListener("change", () => {
     const name = menu.value;
     if (!name) {
@@ -246,7 +221,7 @@
 
     const ageNext = targetYear - birthYear;
     const daysUntil = Math.round((targetBirthday - todayUTC) / (1000 * 60 * 60 * 24));
-    
+
     const weeks = Math.floor(daysUntil / 7);
     const days = daysUntil % 7;
 
@@ -260,39 +235,33 @@
       timeText = `${parts.join(" and ")} until their birthday.`;
     }
 
-    result.innerHTML = 
+    result.innerHTML =
       `<strong>${name}</strong> is currently <strong>${ageNow}</strong> years old.<br>` +
       `They will turn <strong>${ageNext}</strong> on their next birthday.<br>` +
       `🕒 ${timeText}`;
   });
 </script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyB66TW4s5t4wad27trMjxJ6ydrteV0HyaY",
-    authDomain: "rememberme002.firebaseapp.com",
-    projectId: "rememberme002",
-    storageBucket: "rememberme002.firebasestorage.app",
-    messagingSenderId: "180226745748",
-    appId: "1:180226745748:web:69027dbdbfd98dd2121b81"
+    apiKey: "A_TE_API_KEYED",
+    authDomain: "A_TE_AUTH_DOMAINED",
+    projectId: "A_TE_PROJECT_IDD",
+    storageBucket: "A_TE_STORAGE_BUCKETED",
+    messagingSenderId: "A_TE_SENDER_IDD",
+    appId: "A_TE_APP_IDD"
   };
+
+  const VAPID_KEY = "A_TE_VAPID_KULCSOD";
 
   const app = initializeApp(firebaseConfig);
   const messaging = getMessaging(app);
 
-  // Ezt hívd meg, miután a felhasználó engedélyezte az értesítéseket:
-  async function registerPushToken() {
-    const swReg = await navigator.serviceWorker.ready;
-    // A VAPID kulcsot a Firebase Console -> Project settings -> Cloud Messaging -> Web Push certificates alatt találod
-    const token = await getToken(messaging, {
-      serviceWorkerRegistration: swReg,
-      vapidKey: "BIBl3TVdZLis66oJC9_FOa0R6iblF-MoHWSjiRlBXYXWEjcrVAzq1bOpO_iN58UxBXD9bznkUunDJa5hcGFPMcA"
-    });
-    console.log("FCM Token:", token);
-    return token;
-  }
-</script>
-</body>
-</html>
+  async function initServiceWorkerAndToken(requestIfNeeded = false) {
+    if (!("serviceWorker" in navigator)) return;
+
+    try {
+      const swReg = await navigator.serviceWorker.
