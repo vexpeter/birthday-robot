@@ -12,11 +12,10 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Háttérben érkező push üzenetek kezelése (amikor az app zárva van)
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || "Remember Me!";
+  const title = payload.notification?.title || payload.data?.title || "Remember Me!";
   const options = {
-    body: payload.notification?.body || "Szülinapi emlékeztető!",
+    body: payload.notification?.body || payload.data?.body || "Szülinapi emlékeztető!",
     icon: "icon.png"
   };
 
